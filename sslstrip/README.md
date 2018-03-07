@@ -107,7 +107,9 @@ La règle iptables permet de rediriger les flux TCP à destination du port 80 (H
 
 ![screen4](https://repo.t0x0sh.org/images/mastercsi-ter/sslstrip/screen4.png)
 
-### Explication du code
+### Explication du code du proxy
+
+Le code du proxy est dans le fichier [sslstrip.py](https://github.com/t00sh/mastercsi-ter/blob/master/sslstrip/immortal/sslstrip.py).
 
 #### Réception des requêtes
 
@@ -117,7 +119,7 @@ Lors de la réception de requêtes, il s'agit de savoir si l'on doit :
 - établir une connexion https, dans le cas où le client demande la page [secure.php](https://github.com/t00sh/mastercsi-ter/blob/master/sslstrip/opeth/www/secure.php)
 - établir une connexion http, dans le cas où le client demande la page d'accueil [index.php](https://github.com/t00sh/mastercsi-ter/blob/master/sslstrip/opeth/www/index.php)
 
-Le code est dans le fichier [sslstrip.py](https://github.com/t00sh/mastercsi-ter/blob/master/sslstrip/immortal/sslstrip.py)
+Voici la fonction implémentant la reception d'une requête HTTP :
 
 ```python
 def __recv(self, csock):
@@ -151,11 +153,13 @@ La transformation se fait à l'aide d'une expression régulière qui remplace __
 ```python
 def __replace_https_to_http(self, data):
         return re.sub(b'https://', b'http://', data)
+```
 
 #### Recalcule de l'entête Content-Length
 
 Il faut ensuite recalculer l'entête Content-Length, en se basant sur le début des données HTTP situées après la séquence "\r\n\r\n" :
 
+```python
 def __replace_content_length(self, data):
     try:
         idx = data.index(b"\r\n\r\n")
@@ -165,7 +169,6 @@ def __replace_content_length(self, data):
     except:
         return data
 ```
-
 
 ## Etape 3 : pendant l'attaque
 
